@@ -42,3 +42,29 @@ cls()
 end_coordinates = (target_x, target_y)
 
 start_node = Node(start_coordinates[0], start_coordinates[1], end_coordinates, None)
+
+def get_path(start_node, end_coordinates, grid):
+	open_nodes = []
+	open_nodes.append(start_node)
+	closed_nodes = []
+
+	found = False
+
+	while len(open_nodes > 0) and !(found):
+		current_node = open_nodes[0]
+		for i in range(-1, 2):
+			for j in range(-1, 2):
+				if current_node.x + i < 0 or current_node.x + i > 9:
+					pass
+				elif current_node.y + j < 0 or current_node.x + j > 9:
+					pass
+				elif current_node.x + i == current_node.x and current_node.y + j == current_node.y:
+					pass
+				elif current_node.x + i == end_coordinates[0] and current_node.y + j == end_coordinates[1]:
+					path_node = Node(current_node.x + i, current_node.y + j, end_coordinates, current_node)
+					found = True
+				elif grid[current_node.x + i, current_node.y + j] != 'x':
+					open_nodes.append(Node(current_node.x + i, current_node.y + j, end_coordinates, current_node))
+					open_nodes.sort(key=lambda x: x.f, reverse=False)
+				else:
+					pass
