@@ -1,7 +1,4 @@
 import os
-import colorama
-from colorama import Fore
-from colorama import Style
 
 cls = lambda: os.system('cls')
 
