@@ -1,4 +1,7 @@
 import os
+import colorama
+from colorama import Fore
+from colorama import Style
 
 cls = lambda: os.system('cls')
 
@@ -87,13 +90,15 @@ for i in range(10):
 	line = ''
 	for j in range(10):
 		if j == start_node.x and i == start_node.y:
-			line += 'S'
+			line += '\x1b[6;30;43m' + 'S' + '\x1b[0m'
 		elif j == end_coordinates[0] and i == end_coordinates[1]:
-			line += 'T'
+			line += '\x1b[6;30;43m' + 'T' + '\x1b[0m'
 		elif (j, i) in shortest_path:
-			line += 'x'
+			line += '\x1b[6;30;42m' + 'x' + '\x1b[0m'
 		elif grid[i][j] == 'x':
-			line += 'w'
+			line += '\x1b[6;30;41m' + 'w' + '\x1b[0m'
 		else:
 			line += '-'
 	print(line)
+
+input()
