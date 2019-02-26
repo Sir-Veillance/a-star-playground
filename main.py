@@ -68,3 +68,11 @@ def get_path(start_node, end_coordinates, grid):
 					open_nodes.sort(key=lambda x: x.f, reverse=False)
 				else:
 					pass
+
+	path = []
+	pathing_node = path_node
+	while pathing_node.parent != None:
+		path.append(pathing_node.x, pathing_node.y)
+		pathing_node = pathing_node.parent
+
+	return path
