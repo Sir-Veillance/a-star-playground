@@ -30,41 +30,40 @@ class Node(object):
 	def generate_h(self):
 		return math.sqrt((self.target[0] - self.x)**2 + (self.target[1] - self.y)**2)
 
-grid = ['oooooooooooooooooooooooooooooo',
-		'ooooooooooxxxxxxoooooxxxxxxooo',
-		'oxxxxxxoooooooooooxxoooooooooo',
-		'ooooooooooxxoooooooooooooooooo',
-		'oooooooooooooooooooooooooooooo',
-		'ooooxxxxooooooxxxxxxxxxxxooooo',
-		'ooooooooooooooooooooooooooooxo',
-		'ooxxxooooooooooooooooooooooooo',
-		'ooooooooooxxxxxxxxoooooxxxxxxx',
-		'ooooooooooooooooooooxxoooooooo',
-		'oooxxxxxxxxxxxoooooooooooooooo',
-		'xxoooooooooooooooxxxxxxxxxxxxx',
-		'oooooooooooooooooooxoxoxoxoooo',
-		'ooooooooooxxxxxooooxoxoxoxoooo',
-		'oooooxxxxooooooooooxoxoxoxoooo',
-		'xxxooooooooooooooooooooooooooo',
-		'oooooooooooooooooooooooooooooo',
-		'xxxxxxoooooooooooooxxxxooooooo',
-		'oooooooooooooooooooooooooooooo',
-		'oooooooooxxxxxxxxxxxxxxxoooooo',
-		'ooooooxxooooooooooooooooooxxoo',
-		'oooooooooooooooooooooooooooooo',
-		'xxxxxxxxxxxxxxxxoooxxxxxxxxxxx',
-		'oooooooooooooooooooooooooooooo',
-		'oooooooooooooooooooooooooooooo',
-		'xxoooooooooxxooooooooooooooooo',
-		'ooooxxxxooooxxxxooooxxxxooooxx',
-		'ooooxoooooooooooooooooooooooox',
-		'ooooxoooooooooooooooooooooooox',
-		'oooooooooooooosooooooooooooooo']
+grid = ['ooooooooooooooooooooooooooooo',
+		'ooooooooooxxxxxxoooooxxxxxxoo',
+		'oxxxxxxoooooooooooxxooooooooo',
+		'ooooooooooxxooooooooooooooooo',
+		'ooooooooooooooooooooooooooooo',
+		'ooooxxxxooooooxxxxxxxxxxxoooo',
+		'oooooooooooooooooooooooooooox',
+		'ooxxxoooooooooooooooooooooooo',
+		'ooooooooooxxxxxxxxoooooxxxxxx',
+		'ooooooooooooooooooooxxooooooo',
+		'oooxxxxxxxxxxxooooooooooooooo',
+		'xxoooooooooooooooxxxxxxxxxxxx',
+		'oooooooooooooooooooxoxoxoxooo',
+		'ooooooooooxxxxxooooxoxoxoxooo',
+		'oooooxxxxooooooooooxoxoxoxooo',
+		'xxxoooooooooooooooooooooooooo',
+		'ooooooooooooooooooooooooooooo',
+		'xxxxxxoooooooooooooxxxxoooooo',
+		'ooooooooooooooooooooooooooooo',
+		'oooooooooxxxxxxxxxxxxxxxooooo',
+		'ooooooxxooooooooooooooooooxxo',
+		'ooooooooooooooooooooooooooooo',
+		'xxxxxxxxxxxxxxxxoooxxxxxxxxxx',
+		'ooooooooooooooooooooooooooooo',
+		'ooooooooooooooooooooooooooooo',
+		'xxoooooooooxxoooooooooooooooo',
+		'ooooxxxxooooxxxxooooxxxxoooox',
+		'ooooxoooooooooooooooooooooooo',
+		'ooooxooooooooosoooooooooooooo',]
 
-start_coordinates = (14, 29)
+start_coordinates = (14, 28)
 
-target_x = int(input('Enter target x coordinate (0-29): '))
-target_y = int(input('Enter target y coordinate (0-29): '))
+target_x = int(input('Enter target x coordinate (0-28): '))
+target_y = int(input('Enter target y coordinate (0-28): '))
 cls()
 end_coordinates = (target_x, target_y)
 
@@ -83,7 +82,7 @@ def get_path(start_node, target, grid):
 		closed_nodes.append(current_node)
 		for i in range(-1, 2):
 			for j in range(-1, 2):
-				if current_node.y + i < 0 or current_node.y + i > 29 or current_node.x + j < 0 or current_node.x + j > 29:
+				if current_node.y + i < 0 or current_node.y + i > 28 or current_node.x + j < 0 or current_node.x + j > 28:
 					pass
 				elif i == 0 and j == 0:
 					pass
@@ -105,6 +104,7 @@ def get_path(start_node, target, grid):
 						open_nodes.append(next_node)
 
 		open_nodes.sort(key=lambda x: x.f, reverse=False)
+		draw_grid(grid, open_nodes, closed_nodes)
 
 	path = []
 	current_node = path_node
@@ -114,11 +114,40 @@ def get_path(start_node, target, grid):
 
 	return path
 
+def draw_grid(grid, open_nodes, closed_nodes, shortest_path=[]):
+	cls()
+	open_positions = []
+	closed_positions = []
+
+	for node in open_nodes:
+		open_positions.append((node.x, node.y))
+	for node in closed_nodes:
+		closed_positions.append((node.x, node.y))
+
+	for i in range(29):
+		line = ''
+		for j in range(29):
+			if (j, i) in open_positions:
+				line += '\x1b[0;36;40m' + 'o' + '\x1b[0m'
+			elif (j, i) in closed_positions:
+				line += '\x1b[0;35;40m' + 'o' + '\x1b[0m'
+			elif j == start_node.x and i == start_node.y:
+				line += '\x1b[6;30;43m' + 'S' + '\x1b[0m'
+			elif j == end_coordinates[0] and i == end_coordinates[1]:
+				line += '\x1b[6;30;43m' + 'T' + '\x1b[0m'
+			elif (j, i) in shortest_path:
+				line += '\x1b[6;30;42m' + 'x' + '\x1b[0m'
+			elif grid[i][j] == 'x':
+				line += '\x1b[6;30;41m' + 'w' + '\x1b[0m'
+			else:
+				line += '-'
+		print(line)
+
 shortest_path = get_path(start_node, end_coordinates, grid)
 
-for i in range(30):
+for i in range(29):
 	line = ''
-	for j in range(30):
+	for j in range(29):
 		if j == start_node.x and i == start_node.y:
 			line += '\x1b[6;30;43m' + 'S' + '\x1b[0m'
 		elif j == end_coordinates[0] and i == end_coordinates[1]:
