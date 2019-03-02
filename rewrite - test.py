@@ -28,7 +28,7 @@ class Node(object):
 			return g
 
 	def generate_h(self):
-		return math.sqrt((self.target[0] - self.x)**2 + (self.target[1] - self.y)**2)
+		return (self.target[0] - self.x)**2 + (self.target[1] - self.y)**2
 
 grid = ['ooooooooooooooooooooooooooooo',
 		'ooooooooooxxxxxxoooooxxxxxxoo',
