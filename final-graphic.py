@@ -1,8 +1,24 @@
 import os
 import math
 import time
+import pygame
+from pygame.locals import *
 
-cls = lambda: os.system('cls')
+pygame.init()
+
+window_width = 480
+window_height = 480
+
+window = pygame.display.set_mode((window_width, window_height))
+pygame.display.set_caption('A*')
+
+# draw order: background, grid, walls, path, start/end
+background = (217, 173, 124)
+wall_color = (103, 77, 60)
+grid_color = (162, 131, 110)
+path_color = (255, 242, 223)
+
+window.fill(background)
 
 class Node(object):
 	def __init__(self, x, y, target, parent):
@@ -63,12 +79,10 @@ grid = ['oooooooooooooooooooooooooooooo',
 
 start_coordinates = (14, 29)
 
-target_x = int(input('Enter target x coordinate (0-29): '))
-target_y = int(input('Enter target y coordinate (0-29): '))
-cls()
-end_coordinates = (target_x, target_y)
-
-start_node = Node(start_coordinates[0], start_coordinates[1], end_coordinates, None)
+#target_x = int(input('Enter target x coordinate (0-29): '))
+#target_y = int(input('Enter target y coordinate (0-29): '))
+#cls()
+#end_coordinates = (target_x, target_y)
 
 def get_path(start_node, target, grid):
 	open_nodes = []
@@ -89,11 +103,11 @@ def get_path(start_node, target, grid):
 					pass
 				elif grid[current_node.y + i][current_node.x + j] == 'x':
 					pass
-				elif current_node.y + i == end_coordinates[1] and current_node.x + j == end_coordinates[0]:
-					path_node = Node(current_node.x + j, current_node.y + i, end_coordinates, current_node)
+				elif current_node.y + i == target[1] and current_node.x + j == target[0]:
+					path_node = Node(current_node.x + j, current_node.y + i, target, current_node)
 					not_found = False
 				else:
-					next_node = Node(current_node.x + j, current_node.y + i, end_coordinates, current_node)
+					next_node = Node(current_node.x + j, current_node.y + i, target, current_node)
 					if next_node in closed_nodes:
 						pass
 					elif next_node in open_nodes:
@@ -105,7 +119,6 @@ def get_path(start_node, target, grid):
 						open_nodes.append(next_node)
 
 		open_nodes.sort(key=lambda x: x.f, reverse=False)
-		draw_grid(grid, open_nodes, closed_nodes)
 
 	path = []
 	current_node = path_node
@@ -115,50 +128,47 @@ def get_path(start_node, target, grid):
 
 	return path
 
-def draw_grid(grid, open_nodes, closed_nodes, shortest_path=[]):
-	cls()
-	open_positions = []
-	closed_positions = []
+terminated = False
 
-	for node in open_nodes:
-		open_positions.append((node.x, node.y))
-	for node in closed_nodes:
-		closed_positions.append((node.x, node.y))
+def render(window, grid, path):
+	window.fill(background)
 
-	lines = []
 	for i in range(30):
-		line = ''
 		for j in range(30):
-			if j == start_node.x and i == start_node.y:
-				line += '\x1b[6;30;43m' + 'S' + '\x1b[0m'
-			elif j == end_coordinates[0] and i == end_coordinates[1]:
-				line += '\x1b[6;30;43m' + 'T' + '\x1b[0m'
-			elif (j, i) in open_positions:
-				line += '\x1b[0;36;40m' + 'o' + '\x1b[0m'
-			elif (j, i) in closed_positions:
-				line += '\x1b[0;35;40m' + 'o' + '\x1b[0m'
-			elif (j, i) in shortest_path:
-				line += '\x1b[6;30;42m' + 'x' + '\x1b[0m'
-			elif grid[i][j] == 'x':
-				line += '\x1b[6;30;41m' + 'w' + '\x1b[0m'
+			if grid[i][j] == 'x':
+				rect = pygame.Rect(j*16, i*16, 16, 16)
+				window.fill(wall_color, rect)
 			else:
-				line += '-'
-		print(line)
+				pygame.draw.line(window, grid_color, (j*16, i*16+15), (j*16+15, i*16+15), 1)
+				pygame.draw.line(window, grid_color, (j*16+15, i*16+15), (j*16+15, i*16), 1)
 
-shortest_path = get_path(start_node, end_coordinates, grid)
+	previous_pos = None
 
-for i in range(30):
-	line = ''
-	for j in range(30):
-		if j == start_node.x and i == start_node.y:
-			line += '\x1b[6;30;43m' + 'S' + '\x1b[0m'
-		elif j == end_coordinates[0] and i == end_coordinates[1]:
-			line += '\x1b[6;30;43m' + 'T' + '\x1b[0m'
-		elif (j, i) in shortest_path:
-			line += '\x1b[6;30;42m' + 'x' + '\x1b[0m'
-		elif grid[i][j] == 'x':
-			line += '\x1b[6;30;41m' + 'w' + '\x1b[0m'
+	for pos in path:
+		if previous_pos == None:
+			pass
 		else:
-			line += '-'
-	print(line)
-input()
+			pygame.draw.line(window, path_color, (pos[0]*16+7, pos[1]*16+7), (previous_pos[0]*16+7, previous_pos[1]*16+7), 2)
+		previous_pos = pos
+
+	pygame.display.update()
+
+while not terminated:
+	previous_location = (0, 0)
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+			terminated = True
+		if event.type == pygame.MOUSEMOTION:
+			pos = pygame.mouse.get_pos()
+			current_pos = (pos[0]//16, pos[1]//16)
+			if previous_location == current_pos:
+				pass
+			elif grid[current_pos[1]][current_pos[0]] == 'x':
+				pass
+			else:
+				previous_location = current_pos
+				start_node = Node(start_coordinates[0], start_coordinates[1], current_pos, None)
+				shortest_path = get_path(start_node, current_pos, grid)
+				render(window, grid, shortest_path)
+pygame.quit()
+
